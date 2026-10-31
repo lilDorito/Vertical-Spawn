@@ -64,7 +64,7 @@ All commands need permission level 2 (ops, command blocks, datapack functions).
 
 ### Example: respawn anywhere from deep caves to the surface
 
-```
+```mcfunction
 /worldborder center 0 0
 /worldborder set 300
 /verticalspawn area border -50 120
@@ -73,7 +73,7 @@ All commands need permission level 2 (ops, command blocks, datapack functions).
 
 ### Example: only in covered spots inside one region
 
-```
+```mcfunction
 /verticalspawn area box -50 -50 50 50 0 100
 /verticalspawn ceiling true
 /verticalspawn enable
@@ -85,7 +85,7 @@ A single area with a few large structures in it mostly spawns players on the ope
 
 Example - two towers and the ground around them:
 
-```
+```mcfunction
 /verticalspawn zone add tower_a -30 -10 -10 10 65 200 true
 /verticalspawn zone add tower_b 10 -10 30 10 65 200 true
 /verticalspawn zone add ground -50 -50 50 50 64 64
@@ -103,7 +103,7 @@ That's 1/3 tower A, 1/3 tower B, 1/3 ground. Leave out the `ground` zone and pla
 
 `/verticalspawn spread` takes exactly the same arguments as vanilla `/spreadplayers`, so you only change the command name:
 
-```
+```mcfunction
 spreadplayers 0 0 10 80 true @a
 verticalspawn spread 0 0 10 80 true @a
 
