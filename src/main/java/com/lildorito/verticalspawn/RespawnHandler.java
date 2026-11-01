@@ -16,7 +16,6 @@ import java.util.Optional;
 @Mod.EventBusSubscriber(modid = VerticalSpawn.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class RespawnHandler
 {
-    /** How far vanilla can place a player from their bed/anchor/spawnpoint block when it is used. */
     private static final int OWN_SPAWN_RADIUS = 3;
 
     private RespawnHandler() {}
@@ -24,12 +23,10 @@ public final class RespawnHandler
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event)
     {
-        // Leaving the End through the exit portal is also a "respawn" - leave that alone.
         if (event.isEndConquered()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         ServerLevel overworld = player.server.overworld();
-        // Players without a spawn point always respawn in the overworld.
         if (player.level() != overworld) return;
 
         VerticalSpawnData data = VerticalSpawnData.get(player.server);
@@ -43,7 +40,6 @@ public final class RespawnHandler
         }
     }
 
-    /** Teleports the player to a random safe spot. Returns false if none was found. */
     public static boolean teleportToRandomSpot(ServerPlayer player, ServerLevel level, VerticalSpawnData data)
     {
         Optional<Vec3> spot = SpawnFinder.find(level, data);
@@ -53,7 +49,6 @@ public final class RespawnHandler
         return true;
     }
 
-    /** Teleports any entity (player or not) to the spot with a random facing direction. */
     public static void teleportEntity(Entity entity, ServerLevel level, Vec3 spot)
     {
         float yaw = level.getRandom().nextFloat() * 360.0F - 180.0F;
@@ -63,10 +58,6 @@ public final class RespawnHandler
         entity.fallDistance = 0.0F;
     }
 
-    /**
-     * Vanilla keeps the stored respawn position even when the bed is gone or blocked, so instead of
-     * checking it alone we check whether vanilla actually put the player next to it.
-     */
     private static boolean respawnedAtOwnSpawn(ServerPlayer player)
     {
         BlockPos spawn = player.getRespawnPosition();

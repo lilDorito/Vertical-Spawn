@@ -12,10 +12,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Per-world settings, saved in {@code <world>/data/verticalspawn.dat} so they survive restarts.
- * Always stored on the overworld, which is where players without a spawn point respawn.
- */
 public class VerticalSpawnData extends SavedData
 {
     private static final String DATA_NAME = VerticalSpawn.MODID;
@@ -29,13 +25,10 @@ public class VerticalSpawnData extends SavedData
     private int minY = -64;
     private int maxY = 319;
     private boolean requireCeiling = false;
-    /** Named respawn zones. When at least one exists, they replace the single area. */
     private final Map<String, Zone> zones = new LinkedHashMap<>();
 
-    /** A named box with its own Y range and ceiling setting. */
     public record Zone(String name, int minX, int maxX, int minZ, int maxZ, int minY, int maxY, boolean requireCeiling)
     {
-        /** Normalizes corners so min/max can be given in any order. */
         public static Zone of(String name, int x1, int z1, int x2, int z2, int y1, int y2, boolean requireCeiling)
         {
             return new Zone(name, Math.min(x1, x2), Math.max(x1, x2), Math.min(z1, z2), Math.max(z1, z2),
@@ -115,7 +108,6 @@ public class VerticalSpawnData extends SavedData
         return tag;
     }
 
-    /** Adds or replaces a zone. Returns true if a zone with that name already existed. */
     public boolean putZone(Zone zone)
     {
         boolean existed = zones.put(zone.name(), zone) != null;
@@ -149,7 +141,6 @@ public class VerticalSpawnData extends SavedData
         setDirty();
     }
 
-    /** Use the whole world border horizontally. */
     public void setBorderArea(int minY, int maxY)
     {
         this.useBox = false;
@@ -158,7 +149,6 @@ public class VerticalSpawnData extends SavedData
         setDirty();
     }
 
-    /** Use an explicit X/Z box (still clipped to the world border). Corners can be given in any order. */
     public void setBoxArea(int x1, int z1, int x2, int z2, int minY, int maxY)
     {
         this.useBox = true;

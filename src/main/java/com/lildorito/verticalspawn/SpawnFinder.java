@@ -18,37 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Finds random safe standing spots.
- *
- * Instead of taking the highest block like vanilla, every safe spot in a column between
- * minY and maxY is collected (ground floor, every storey, the roof). Several columns are
- * sampled and one spot is picked from all of them, so each level has a roughly equal chance.
- *
- * When zones exist, a zone is picked first (equal chance each), then a spot inside it.
- * If that zone has no free spot, the other zones are tried in random order.
- */
 public final class SpawnFinder
 {
-    /** Hard cap on how many random X/Z columns are scanned per search. */
     private static final int MAX_COLUMNS = 64;
-    /** Stop sampling once this many columns produced at least one safe spot. */
     private static final int ENOUGH_COLUMNS = 8;
-    /** Thin blocks a player can stand "inside" (carpet, 1-2 snow layers). */
     private static final double MAX_LAYER_HEIGHT = 0.125;
-    /** How many fresh samples /verticalspawn spread tries before giving up. */
     private static final int SPREAD_ATTEMPTS = 4;
 
     private SpawnFinder() {}
 
-    /** An area after clipping to the world border and the build height. */
     public record Bounds(String name, int minX, int maxX, int minZ, int maxZ, int minY, int maxY,
                          boolean requireCeiling) {}
 
-    /**
-     * Everything respawns can use: all zones if any exist, otherwise the single area.
-     * Areas that end up empty after clipping are left out.
-     */
     public static List<Bounds> resolveAll(ServerLevel level, VerticalSpawnData data)
     {
         List<Bounds> result = new ArrayList<>();
@@ -69,7 +50,6 @@ public final class SpawnFinder
         return result;
     }
 
-    /** The single configured area (used when there are no zones); null if nothing is left. */
     @Nullable
     public static Bounds resolveArea(ServerLevel level, VerticalSpawnData data)
     {
@@ -82,11 +62,6 @@ public final class SpawnFinder
                 data.minY(), data.maxY(), data.requireCeiling());
     }
 
-    /**
-     * Areas for {@code /verticalspawn spread}: a square of {@code maxRange} around the center (like
-     * /spreadplayers), intersected with each zone - or with the area's Y range when there are no zones.
-     * {@code maxHeight} (feet Y) caps every area further.
-     */
     public static List<Bounds> spreadBounds(ServerLevel level, VerticalSpawnData data,
                                             double centerX, double centerZ, double maxRange, @Nullable Integer maxHeight)
     {
@@ -117,7 +92,6 @@ public final class SpawnFinder
         return result;
     }
 
-    /** Clips an area to the world border and build height; null if nothing is left. */
     @Nullable
     private static Bounds clip(ServerLevel level, String name, int minX, int maxX, int minZ, int maxZ,
                                int minY, int maxY, boolean requireCeiling)
@@ -136,7 +110,6 @@ public final class SpawnFinder
         return new Bounds(name, minX, maxX, minZ, maxZ, minY, maxY, requireCeiling);
     }
 
-    /** Returns the position to put the player's feet at, or empty if no safe spot was found. */
     public static Optional<Vec3> find(ServerLevel level, VerticalSpawnData data)
     {
         RandomSource random = level.getRandom();
@@ -152,12 +125,6 @@ public final class SpawnFinder
         return Optional.empty();
     }
 
-    /**
-     * Picks one spot per group so that every two spots are at least {@code minDistance} apart
-     * (measured in 3D, so different heights in the same column count as apart). Each group
-     * picks a random area first (equal chance), falling back to the others if it has no room.
-     * @return the spots, or null if they could not all be placed
-     */
     @Nullable
     public static List<Vec3> spread(ServerLevel level, List<Bounds> areas, int groups, double minDistance)
     {
@@ -229,7 +196,6 @@ public final class SpawnFinder
         }
     }
 
-    /** Samples random columns and returns every safe spot found in them. */
     private static List<Vec3> collectSpots(ServerLevel level, Bounds b, int enoughColumns, int maxColumns)
     {
         RandomSource random = level.getRandom();
@@ -262,10 +228,6 @@ public final class SpawnFinder
         return spots;
     }
 
-    /**
-     * Checks whether a player can stand with their feet in {@code feet}.
-     * @return how far above the block's bottom the player stands (0, or the carpet/snow height), or -1 if unsafe.
-     */
     private static double standOffset(ServerLevel level, BlockPos feet)
     {
         BlockState feetState = level.getBlockState(feet);
@@ -291,7 +253,6 @@ public final class SpawnFinder
         return offset;
     }
 
-    /** No collision, no liquid, nothing that hurts or traps. */
     private static boolean isPassable(ServerLevel level, BlockPos pos, BlockState state)
     {
         return state.getCollisionShape(level, pos).isEmpty()
@@ -299,7 +260,6 @@ public final class SpawnFinder
                 && !isHazard(state);
     }
 
-    /** Non-solid blocks you should not spawn inside. */
     private static boolean isHazard(BlockState state)
     {
         return state.is(BlockTags.FIRE)
@@ -312,7 +272,6 @@ public final class SpawnFinder
                 || state.is(Blocks.POINTED_DRIPSTONE);
     }
 
-    /** Solid blocks you should not spawn on top of. Leaves are skipped like vanilla does. */
     private static boolean isBadFloor(BlockState state)
     {
         return state.is(Blocks.MAGMA_BLOCK)

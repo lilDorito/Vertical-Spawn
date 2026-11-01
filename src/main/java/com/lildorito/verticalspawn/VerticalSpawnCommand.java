@@ -45,8 +45,6 @@ import java.util.Map;
  * /verticalspawn zone ceiling <name> <true|false>
  * /verticalspawn zone remove <name> | list | clear
  * /verticalspawn status
- *
- * Permission level 2, so it works from datapack functions, command blocks and ops.
  */
 @Mod.EventBusSubscriber(modid = VerticalSpawn.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class VerticalSpawnCommand
